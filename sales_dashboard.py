@@ -116,8 +116,8 @@ if selected_gender != 'All':
     filtered_df = filtered_df[filtered_df['Gender'] == selected_gender]
 
 
-# --- 3. 메인 화면 - 탭 구조 ---
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+# --- 3. 메인 화면 - 탭 구조 (Tab 5, Tab 6 제거) ---
+tab1, tab2, tab3, tab4 = st.tabs(
     ["대시보드 요약", "상세 이직률 분석 (복합)", "이직 핵심 요인 분석 (히트맵)", "🎯 Sales팀 심층 분석 (15가지)"]
 )
 
