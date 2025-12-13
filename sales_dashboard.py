@@ -74,7 +74,7 @@ if df.empty:
 
 # --- 2. 사이드바 (Sidebar) 필터 ---
 st.set_page_config(layout="wide")
-st.sidebar.title("HR 이직률 감소를 위한 분석 대시보드")
+st.sidebar.title("sales 이직률 감소를 위한 분석 대시보드")
 
 # 필터 옵션
 all_departments = df['Department'].unique().tolist()
