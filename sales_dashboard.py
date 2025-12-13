@@ -174,19 +174,25 @@ with tab2:
         st.subheader("연봉-근속년수-직무만족도 복합 분석")
         if not filtered_df.empty:
             # 3가지 요소 복합: MonthlyIncome(Y), YearsAtCompany(X), JobSatisfaction(Color), Attrition(Symbol)
+            
+            # --- 수정된 부분: Attrition 기호 변경 ---
+            symbol_map = {'Yes': 'x', 'No': 'circle'} # Yes는 x, No는 o(circle)로 표시
+            # ------------------------------------
+            
             fig_scatter = px.scatter(
                 filtered_df,
                 x='YearsAtCompany',
                 y='MonthlyIncome',
                 color='JobSatisfaction',  # 색상: 직무 만족도 (연속형)
                 symbol='Attrition',      # 기호: 이직 여부
+                symbol_map=symbol_map,   # 기호 매핑 적용
                 hover_data=['Age', 'Department', 'JobRole'],
                 title='<b>월소득, 근속년수, 직무만족도에 따른 이직 현황</b>',
                 color_continuous_scale=px.colors.sequential.Viridis
             )
             fig_scatter.update_layout(height=500)
             st.plotly_chart(fig_scatter, use_container_width=True)
-            st.caption("🔍 **저소득(Y축 하단), 단기 근속(X축 좌측), 낮은 직무 만족도(짙은 색상) 영역**에 'Yes' 기호(이직)가 집중되어 있습니다.")
+            st.caption("🔍 **저소득(Y축 하단), 단기 근속(X축 좌측), 낮은 직무 만족도(짙은 색상) 영역**에 'x' 기호(이직)가 집중되어 있습니다.")
         else:
             st.warning("필터링된 데이터가 없습니다.")
     
