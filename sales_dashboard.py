@@ -74,7 +74,7 @@ if df.empty:
 
 # --- 2. 사이드바 (Sidebar) 필터 ---
 st.set_page_config(layout="wide")
-st.sidebar.title("이직률 감소를 위한 분석 대시보드")
+st.sidebar.title("HR 이직률 감소를 위한 분석 대시보드")
 
 # 필터 옵션
 all_departments = df['Department'].unique().tolist()
@@ -105,7 +105,7 @@ selected_age_range = st.sidebar.slider(
     value=(min_age, max_age)
 )
 
-# 데이터 필터링 적용
+# 데이터 필터링 적용 (전역 필터)
 filtered_df = df[
     (df['Department'].isin(selected_departments)) &
     (df['JobRole'].isin(selected_job_roles)) &
@@ -116,7 +116,7 @@ if selected_gender != 'All':
     filtered_df = filtered_df[filtered_df['Gender'] == selected_gender]
 
 
-# --- 3. 메인 화면 - 탭 구조 (Tab 5, Tab 6 제거) ---
+# --- 3. 메인 화면 - 탭 구조 ---
 tab1, tab2, tab3, tab4 = st.tabs(
     ["대시보드 요약", "상세 이직률 분석 (복합)", "이직 핵심 요인 분석 (히트맵)", "🎯 Sales팀 심층 분석 (15가지)"]
 )
@@ -273,11 +273,15 @@ with tab3:
 with tab4:
     st.title("🎯 Sales팀 이직률 심층 분석: 15가지 핵심 요인")
     
-    # Sales팀 데이터만 필터링 (전체 데이터 기준)
-    df_sales = df[df['Department'] == 'Sales']
+    # Sales팀 데이터만 필터링 (필터링된 데이터 기준: filtered_df 사용)
+    df_sales = filtered_df[filtered_df['Department'] == 'Sales']
     
     if df_sales.empty:
-        st.error("Sales 부서 데이터가 없습니다. (전체 데이터 기준)")
+        # Sales 부서가 필터링되었거나, 필터링된 데이터가 없는 경우
+        if 'Sales' not in selected_departments:
+             st.error("사이드바에서 'Sales' 부서를 선택해야만 이 탭의 데이터가 표시됩니다.")
+        else:
+             st.error("현재 선택된 필터 조건(연령, 성별, 직무 등)에 해당하는 Sales 부서 데이터가 없습니다.")
     else:
         # A. Sales팀 핵심 지표 및 현황
         st.header("Sales팀 핵심 성과 지표")
@@ -296,7 +300,7 @@ with tab4:
         
         st.markdown("---")
         
-        # B. Sales팀 이직에 영향을 미치는 15가지 핵심 요인 분석 (단순 Bar Chart는 생략, 복합 분석으로 대체)
+        # B. Sales팀 이직에 영향을 미치는 15가지 핵심 요인 분석
         st.header("Sales팀 이직률에 영향을 미치는 15가지 복합 요인 분석")
 
         # 1. JobRole별 MonthlyIncome vs Attrition (산점도 + 3개 요소)
@@ -382,7 +386,7 @@ with tab4:
         st.caption("승진이 오래되었거나(X축 우측) 집이 먼(Y축 상단) 직원이 단기 근속(작은 버블)일 때 이직 위험이 높습니다.")
 
 
-        # 6. ~ 15. 나머지 10가지 요소는 Bar Chart 형태로 제공 (원래 코드 유지)
+        # 6. ~ 15. 나머지 10가지 요소는 Bar Chart 형태로 제공 
 
         st.markdown("---")
         st.subheader("Sales팀 상세 단일 요인 분석 (이직률 바 차트 10가지)")
