@@ -185,14 +185,70 @@ else:
         st.plotly_chart(fig_income_box)
         st.caption("이직 그룹(Yes)의 월소득 중앙값이 잔류 그룹(No)보다 낮은 경향을 보입니다.")
 
+        # --- 영업 직군 심층 분석 ---
+        st.subheader("❓ 영업직은 왜 많이 퇴사할까?")
+        sales_df = filtered_df[filtered_df['JobRole'].isin(['Sales Executive', 'Sales Representative'])]
+        if not sales_df.empty:
+            st.markdown("영업 직군(Sales Executive, Sales Representative)의 주요 이직 요인을 심층 분석합니다.")
+            
+            # 영업 직군의 초과근무별 이직률
+            sales_overtime_attrition = sales_df.groupby('OverTime')['Attrition_numeric'].mean().reset_index()
+            sales_overtime_attrition['Attrition_numeric'] *= 100
+            fig_sales_ot = px.bar(sales_overtime_attrition, x='OverTime', y='Attrition_numeric', title='영업 직군: 초과근무에 따른 이직률',
+                                  text=sales_overtime_attrition['Attrition_numeric'].apply(lambda x: f'{x:.2f}%'))
+            st.plotly_chart(fig_sales_ot)
+            st.caption("영업 직군 내에서도 초과근무를 하는 경우 이직률이 급격히 증가하는 것을 확인할 수 있습니다.")
+
+            # 영업 직군의 출장 빈도별 이직률
+            sales_travel_attrition = sales_df.groupby('BusinessTravel')['Attrition_numeric'].mean().reset_index()
+            sales_travel_attrition['Attrition_numeric'] *= 100
+            fig_sales_travel = px.bar(sales_travel_attrition, x='BusinessTravel', y='Attrition_numeric', title='영업 직군: 출장 빈도에 따른 이직률',
+                                      text=sales_travel_attrition['Attrition_numeric'].apply(lambda x: f'{x:.2f}%'))
+            st.plotly_chart(fig_sales_travel)
+            st.caption("출장이 잦을수록(Travel_Frequently) 이직률이 높아지는 경향을 보이며, 특히 영업 직군에서 두드러집니다.")
+
+        else:
+            st.warning("선택된 필터에 영업 직군 데이터가 없습니다.")
+
+        # --- 저연차 직원 심층 분석 ---
+        st.subheader("❓ 입사 3년차 이하 직원은 왜 많이 퇴사할까?")
+        early_career_df = filtered_df[filtered_df['YearsAtCompany'] <= 3]
+        if not early_career_df.empty:
+            st.markdown("입사 3년차 이하 저연차 직원의 주요 이직 요인을 심층 분석합니다.")
+
+            # 저연차 직원의 직무 만족도별 이직률
+            early_career_satisfaction = early_career_df.groupby('JobSatisfaction')['Attrition_numeric'].mean().reset_index()
+            early_career_satisfaction['Attrition_numeric'] *= 100
+            fig_early_satis = px.bar(early_career_satisfaction, x='JobSatisfaction', y='Attrition_numeric', title='저연차 직원: 직무 만족도에 따른 이직률',
+                                     text=early_career_satisfaction['Attrition_numeric'].apply(lambda x: f'{x:.2f}%'))
+            st.plotly_chart(fig_early_satis)
+            st.caption("저연차 직원 그룹에서는 직무 만족도가 낮을수록(1, 2) 이직률이 매우 높은 것을 알 수 있습니다. 이들의 조기 안착을 위한 노력이 필요합니다.")
+
+            # 저연차 직원의 이직 여부별 월소득
+            fig_early_income = px.box(early_career_df, x='Attrition', y='MonthlyIncome', title='저연차 직원: 이직 여부에 따른 월소득 분포')
+            st.plotly_chart(fig_early_income)
+            st.caption("저연차 그룹에서도 이직하는 직원들의 월소득이 잔류하는 직원들보다 낮은 경향이 뚜렷하게 나타납니다. 특히 소득 하위 25% 그룹의 이탈이 두드러집니다.")
+
+        else:
+            st.warning("선택된 필터에 3년차 이하 직원 데이터가 없습니다.")
+
         # 분석 결론 및 제언
         st.subheader("분석 결론 및 제언")
         st.markdown("""
-        - **결론:** 초과 근무, 잦은 출장, 낮은 직무 만족도는 이직률을 높이는 핵심 요인으로 파악됩니다. 특히, 20대 후반 ~ 30대 초반의 저연차 직원 그룹에서 이러한 경향이 두드러집니다. 또한 이직하는 직원 그룹은 잔류하는 그룹에 비해 평균 월소득이 낮은 경향을 보입니다.
+        - **결론:**
+            - **공통 요인:** 초과 근무, 낮은 워라밸, 낮은 월소득은 전반적인 이직률을 높이는 주요 원인입니다.
+            - **영업 직군:** 특히 영업 직군에서는 **잦은 출장**과 **초과근무**가 이직의 결정적 요인으로 작용합니다. 이 두 가지 문제가 해결되지 않으면 영업팀의 높은 이직률은 계속될 가능성이 높습니다.
+            - **저연차 직원 (3년차 이하):** 이 그룹에서는 **낮은 직무 만족도**와 **낮은 월소득**이 핵심 이직 사유입니다. 경력 초기에 충분한 동기부여와 보상이 제공되지 않아 이탈이 가속화되는 것으로 보입니다.
 
         - **제언:**
-          1.  **초과근무 관리:** 초과 근무 보상 체계를 현실화하고, 워크로드 분산을 위한 인력 재배치 또는 충원을 고려해야 합니다.
-          2.  **출장 정책 개선:** 잦은 출장이 필요한 직무에 대해 재택 근무 옵션을 확대하거나, 출장 관련 복지를 강화하여 만족도를 높일 수 있습니다.
-          3.  **경력 초기 직원 지원:** 신입 및 저연차 직원을 위한 멘토링 프로그램을 강화하고, 명확한 경력 개발 경로를 제시하여 직무 만족도와 조직 몰입도를 향상시켜야 합니다.
-          4.  **보상 체계 점검:** 경쟁력 있는 급여 수준을 유지하고, 성과에 따른 공정한 보상 시스템을 구축하여 소득 불만으로 인한 이직을 최소화해야 합니다.
+          1.  **[Target: 저연차, 영업직] 워라밸 및 보상체계 개선:**
+              - **초과근무 관리:** 불필요한 초과근무를 줄이고, 시행 시 명확한 보상 체계(대체 휴가, 수당 등)를 제공해야 합니다. 특히 초과근무가 잦은 영업 직군의 워크로드를 우선적으로 점검해야 합니다.
+              - **경쟁력 있는 초기 보상:** 저연차 직원의 초임 연봉을 업계 평균 이상으로 재설정하고, 성과에 따른 인상률을 명확히 제시하여 소득 불만으로 인한 이탈을 방지해야 합니다.
+
+          2.  **[Target: 영업직] 출장 정책 현실화:**
+              - 잦은 출장이 필수적인 영업 직무에 대해 **재택근무일 보장**, **출장 수당 현실화**, **숙소 및 교통 지원 강화** 등 실질적인 복지를 강화하여 만족도를 높여야 합니다.
+
+          3.  **[Target: 저연차] 경력 초기 직원 온보딩 강화:**
+              - **직무 만족도 향상:** 신입 및 저연차 직원을 대상으로 한 체계적인 멘토링을 의무화하고, 정기적인 1:1 면담을 통해 고충을 파악하고 해결해야 합니다.
+              - **성장 경로 제시:** 명확한 커리어 패스와 성장 목표를 제시하여, 경력 초기 직원들이 회사 내에서 자신의 미래를 긍정적으로 그릴 수 있도록 지원해야 합니다.
         """)
