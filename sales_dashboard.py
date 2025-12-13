@@ -354,22 +354,37 @@ with tab4:
         )
         st.plotly_chart(fig_bt_wlb_heatmap, use_container_width=True)
         st.caption("출장이 잦고 WLB 점수가 낮은 (1 또는 2) 그룹의 이직률이 높습니다.")
+
+
+        # 4. EnvironmentSatisfaction vs JobSatisfaction vs Attrition (차트 변경: 산점도 -> 히트맵)
+        st.subheader("4. 환경 만족도(ES) vs 직무 만족도(JS)에 따른 이직률 히트맵")
         
-        # 4. EnvironmentSatisfaction vs JobSatisfaction vs Attrition (산점도 + 3개 요소)
-        st.subheader("4. 환경 만족도(ES) vs 직무 만족도(JS)에 따른 이직 현황")
-        fig_es_js_scatter = px.scatter(
-            df_sales,
-            x='EnvironmentSatisfaction',
-            y='JobSatisfaction',
-            color='Attrition',
-            size='MonthlyIncome', # 월 소득을 크기로 표시 (4가지 요소)
-            hover_data=['Age', 'JobLevel'],
-            title='<b>Sales팀 환경/직무 만족도 및 월소득에 따른 이직 현황</b>',
-            color_discrete_map={'Yes': 'red', 'No': 'blue'}
-        )
-        st.plotly_chart(fig_es_js_scatter, use_container_width=True)
-        st.caption("만족도 지수가 모두 낮은 (좌측 하단) 영역에 월소득(크기)이 작은 이직자(빨간색)가 집중되어 있습니다.")
-        
+        if not df_sales.empty:
+            # 히트맵 생성: z축을 Attrition_Numeric(0/1)의 평균(avg)으로 설정하면 자동으로 이직률 계산됨
+            fig_es_js_heatmap = px.density_heatmap(
+                df_sales,
+                x='EnvironmentSatisfaction',
+                y='JobSatisfaction',
+                z='Attrition_Numeric',
+                histfunc='avg',  # 평균값을 계산하여 색상으로 표시 (이직률)
+                color_continuous_scale='RdBu_r', # 빨간색(Red)일수록 이직률 높음, 파란색(Blue)일수록 낮음
+                text_auto='.1%', # 박스 안에 % 수치 표시
+                title='<b>Sales팀 환경(ES) x 직무(JS) 만족도별 이직률 (%)</b>'
+            )
+            
+            # 레이아웃 다듬기
+            fig_es_js_heatmap.update_layout(
+                xaxis_title="환경 만족도 (Environment Satisfaction)",
+                yaxis_title="직무 만족도 (Job Satisfaction)",
+                coloraxis_colorbar_title="이직률"
+            )
+            
+            st.plotly_chart(fig_es_js_heatmap, use_container_width=True)
+            st.caption("💡 **Tip:** 기존 산점도와 달리, **만족도 점수가 겹치는 구간의 실제 이직률**을 명확히 보여줍니다. **붉은색(Red)**으로 표시된 만족도 조합이 집중 관리 대상입니다.")
+        else:
+            st.warning("데이터가 부족하여 차트를 생성할 수 없습니다.")
+
+     
         # 5. DistanceFromHome vs YearsSinceLastPromotion vs Attrition (버블 차트 + 3개 요소)
         st.subheader("5. 재택 거리(DFH)와 승진 후 년수(YSLP)에 따른 이직 현황")
         fig_dfh_yslp_bubble = px.scatter(
