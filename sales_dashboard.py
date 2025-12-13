@@ -168,8 +168,6 @@ else:
             )
             st.plotly_chart(fig_scatter_income, use_container_width=True)
         except Exception as e:
-            st.warning("추세선을 그리려면 'statsmodels' 라이브러리를 설치해야 합니다. (pip install statsmodels)")
-            # 추세선 없이 그래프 그리기 (에러 방지)
             fig_scatter_income = px.scatter(
                 filtered_df,
                 x='TotalWorkingYears',
