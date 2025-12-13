@@ -224,7 +224,7 @@ with tab3:
     st.header("주요 이직 유발 요인 상호작용 분석")
     
     # 1. 초과 근무 & 직무 만족도 히트맵
-    st.subheader("1. 초과 근무(OverTime)와 직무 만족도(JobSatisfaction)의 이직률 히트맵")
+    st.subheader("초과 근무(OverTime)와 직무 만족도(JobSatisfaction)의 이직률 히트맵")
     if not filtered_df.empty:
         # 3가지 요소 복합: OverTime(X), JobSatisfaction(Y), Attrition Rate(Color)
         
