@@ -65,7 +65,7 @@ def create_rate_bar_chart(df, column, title):
     return fig
 
 # 데이터 로드 (파일 경로는 사용자가 마지막에 제시한 경로를 따름)
-df = load_data('HR-employee-attrition/HR-Employee-Attrition.csv')
+df = load_data('HR-Employee-Attrition.csv')
 
 # 데이터가 비어있으면 Streamlit 실행 중단
 if df.empty:
